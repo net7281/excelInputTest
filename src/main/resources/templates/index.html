@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>excel_input_test</title>
+</head>
+<body>
+    <div class="wrap">
+    	<p>엑셀 파일을 업로드 하시면, C:\upload 에 파일이 올라간 후, 데이터를 빼낸 뒤 삭제됩니다.</p>
+    	<form action="/upload" method="post" enctype="multipart/form-data">
+    	    <input type="file" name="excelFile">
+            <button type="submit">input</button>
+    	</form>
+        
+    </div>
+</body>
+</html>
