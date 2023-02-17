@@ -11,11 +11,13 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import com.excelText.excelInputTest.UserVo;
+
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 
 public class ExcelRead {
-	public static List<Map<String, String>> read(ExcelReadOption excelReadOption){
+	public static List<UserVo> read(ExcelReadOption excelReadOption){
 		
 		if(excelReadOption != null) {
 //			받아온 excelReadOption안의 경로의 파일을 Workbook 객체에 저장
@@ -29,9 +31,12 @@ public class ExcelRead {
             int numOfCells = 0;    // cell number
             
 //          각 map을 저장하는 list
-            List<Map<String, String>> result = new ArrayList<Map<String, String>>();
+//            List<Map<String, String>> result = new ArrayList<Map<String, String>>();
+            List<UserVo> result = new ArrayList<UserVo>();
+            
 //          각 row값을 저장하는 map ("A","사과")  
-            Map<String, String> map = null;
+//            Map<String, String> map = null;
+            UserVo vo = null;
             
 //          sheet의 갯수만큼 반복
             for(int k=0; k<sheetNum; k++) {
@@ -44,10 +49,11 @@ public class ExcelRead {
                 
 //              엑셀 파일의 numOfRows가 1이 반환될 경우 예외처리
                 if(numOfRows <= 1) {
-                    map = new HashMap<String, String>();
-                    map.put("error", "유효행 없음");
-                    result.add(map);
-                    return result;
+//                    map = new HashMap<String, String>();
+//                    map.put("error", "유효행 없음");
+//                    result.add(map);
+                	System.out.println("유효행 없음");
+                    return null;
                 }
                 
 //              row만큼 반복
@@ -68,7 +74,8 @@ public class ExcelRead {
                 		numOfCells = row.getLastCellNum();
                 		
 //                		데이터를 담을 맵 객체 초기화
-                		map = new HashMap<String, String>();
+//                		map = new HashMap<String, String>();
+                		vo = new UserVo();
                 		
 //                		cell의 수 만큼 반복
                 		for(int cellIndex = 0; cellIndex < numOfCells; cellIndex++) {
@@ -117,10 +124,15 @@ public class ExcelRead {
                                 continue;
                             }
 //                			map에 {"column=값"}으로 담는다
-                			map.put(cellName, ExcelCellRef.getValue(cell, wb));
+//                			map.put(cellName, ExcelCellRef.getValue(cell, wb));
+                			if(cellName.equals("A")) vo.setIn_num(Integer.parseInt(ExcelCellRef.getValue(cell, wb)));
+                			if(cellName.equals("B")) vo.setName(ExcelCellRef.getValue(cell, wb));
+                			if(cellName.equals("C")) vo.setRRN(ExcelCellRef.getValue(cell, wb));
+                			if(cellName.equals("D")) vo.setNumber(ExcelCellRef.getValue(cell, wb));
+                			if(cellName.equals("E")) vo.setAddress(ExcelCellRef.getValue(cell, wb));
                 		}
-                		map.put("successMessage", "불러오기 성공");
-                		result.add(map); // result리스트에 저장
+//                		map.put("successMessage", "불러오기 성공");
+                		result.add(vo); // result리스트에 저장
                 	}else {
                 		//sheet.getRow(rowIndex).getCell(0) != null && row != null 이 아닐때
                 	}

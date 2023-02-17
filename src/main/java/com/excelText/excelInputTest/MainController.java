@@ -30,8 +30,6 @@ public class MainController {
 	//첫페이지
 	@GetMapping(value="/")
 	public String home( HttpServletRequest request, ModelMap model) {
-		MainDao dao= new MainDao();
-		dao.insertCode();
 		return "index";
 	}
 	
@@ -62,7 +60,7 @@ public class MainController {
 					fileFolder.mkdirs(); 
 				}
 				excelFile.transferTo(fileDir); //엑셀파일 생성
-				excelData = mainService.excelUpload(fileDir); 
+				mainService.excelUpload(fileDir); 
 				fileDir.delete(); //엑셀 데이터 받아온 후 파일 삭제
 			} catch (Exception e) {
 	//			업로드 실패 시 파일 삭제
