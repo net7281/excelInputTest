@@ -30,11 +30,16 @@ public class MainController {
 	//첫페이지
 	@GetMapping(value="/")
 	public String home( HttpServletRequest request, ModelMap model) {
+		MainDao dao= new MainDao();
+		dao.insertCode();
 		return "index";
 	}
 	
 	@RequestMapping(value="/upload", method = RequestMethod.POST)
 	public String upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, ModelMap model) {
+		
+		//걸린시간용
+ 		long beforeTime = System.currentTimeMillis();
 	
 		MultipartFile excelFile = multiRequest.getFile("excelFile");
 //			파일이름 & 특수문자 치환
@@ -66,6 +71,10 @@ public class MainController {
 				}	
 			}
 		}
+		long afterTime = System.currentTimeMillis(); // 코드 실행 후에 시간 받아오기
+		long secDiffTime = (afterTime - beforeTime)/1000; //두 시간에 차 계산
+		System.out.println("시간차이(m) : "+secDiffTime);
+		
 		model.addAttribute("excelDate", excelData);
 		return "result";
 	}

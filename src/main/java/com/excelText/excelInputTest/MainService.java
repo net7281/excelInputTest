@@ -19,7 +19,7 @@ public class MainService {
 //		엑셀 옵션값을 ExcelReadOption 에 저장
 		ExcelReadOption excelReadOption = new ExcelReadOption();
         excelReadOption.setFilePath(destFile.getAbsolutePath()); //파일경로 추가
-        excelReadOption.setOutputColumns("A", "B"); //추출할 컬럼명 추가
+        excelReadOption.setOutputColumns("A", "B", "C", "D", "E"); //추출할 컬럼명 추가
         excelReadOption.setStartRow(1); //시작행  1 부터 시작
 		
         List<Map<String, String>>excelContent  = ExcelRead.read(excelReadOption);
