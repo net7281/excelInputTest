@@ -82,7 +82,7 @@ public class MainController {
 	public String download() {
 		String fileName = "엑셀업로드테스트_양식.xlsx";
 		String saveFileName = "c:/tmp/엑셀업로드테스트_양식.xlsx";
-		String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+		String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8";
 		return contentType;
 		
 	}
