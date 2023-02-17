@@ -125,6 +125,8 @@ public class ExcelRead {
                             }
 //                			map에 {"column=값"}으로 담는다
 //                			map.put(cellName, ExcelCellRef.getValue(cell, wb));
+                			
+//                			행별로 UserVo에 넣는다
                 			if(cellName.equals("A")) vo.setIn_num(Integer.parseInt(ExcelCellRef.getValue(cell, wb)));
                 			if(cellName.equals("B")) vo.setName(ExcelCellRef.getValue(cell, wb));
                 			if(cellName.equals("C")) vo.setRRN(ExcelCellRef.getValue(cell, wb));

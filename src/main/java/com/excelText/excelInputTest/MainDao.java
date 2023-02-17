@@ -8,24 +8,41 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+
 
 @Repository
 public class MainDao {
+	
+//	application.properties값 받아오기
+	@Value("${spring.datasource.url}")
+	private String url;
+	@Value("${spring.datasource.username}")
+	private String username;
+	@Value("${spring.datasource.password}")
+	private String password;
+	
+//	DB연결
+	public Connection getConnection() throws Exception {
+		Class.forName("com.mysql.cj.jdbc.Driver");
+		Connection con = DriverManager.getConnection(url,username,password);
+		con.setAutoCommit( false );
+		return con;
+	}
+	
+//	DB에 엑셀에서 받아온 값 넣기
 	public void insertCode(List<UserVo> userList) throws SQLException {
         
 	    PreparedStatement pstmt = null;
 	    Connection con = null;
-	    int custno =0;
+	    
 	try {    
 	 
 	    String sql = "insert into testtable(in_num, name, RRN, number, address) values (?,?,?,?,?)" ;
-	    Class.forName("com.mysql.cj.jdbc.Driver");
-	    con =  DriverManager.getConnection("jdbc:mysql://localhost:3306/localdb","netboss","1111");
-	    con.setAutoCommit( false );
+	    con = getConnection();
 	    pstmt = con.prepareStatement(sql);
 	    
-//	    List<UserVo> userList = new ArrayList();
 	    int count = 0;
 	    
 	    for(UserVo vo : userList) {
@@ -41,7 +58,7 @@ public class MainDao {
 //	    	사용한 매개변수는 비운다
 	        pstmt.clearParameters();
 	        
-//	        
+//	        1만건 단위로 실행 > Batch는 실행하면 비우고, 커밋
 	        if((count%10000) == 0){
 	        	System.out.println(count);
 	            pstmt.executeBatch();
@@ -52,11 +69,11 @@ public class MainDao {
 	    
 	    pstmt.executeBatch();
 	    con.commit();
-	    System.out.println(count);
+	    System.out.println("end");
 	    
 		}catch(Exception e){
 			e.printStackTrace();
-			con.rollback();
+			con.rollback();//실패 시 롤백
 		}finally{
 		    if(pstmt != null) pstmt.close();
 		    if(con != null) con.close();

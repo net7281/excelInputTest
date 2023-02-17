@@ -33,6 +33,7 @@ public class MainController {
 		return "index";
 	}
 	
+//	엑셀파일 업로드
 	@RequestMapping(value="/upload", method = RequestMethod.POST)
 	public String upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, ModelMap model) {
 		
@@ -75,5 +76,14 @@ public class MainController {
 		
 		model.addAttribute("excelDate", excelData);
 		return "result";
+	}
+	
+	@RequestMapping(value="/download")
+	public String download() {
+		String fileName = "엑셀업로드테스트_양식.xlsx";
+		String saveFileName = "c:/tmp/엑셀업로드테스트_양식.xlsx";
+		String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+		return contentType;
+		
 	}
 }

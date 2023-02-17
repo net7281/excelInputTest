@@ -4,8 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.excelText.excelInputTest.excel.ExcelRead;
@@ -15,7 +14,7 @@ import com.excelText.excelInputTest.excel.ExcelReadOption;
 @Service
 public class MainService {
 	
-	@Inject
+	@Autowired
 	MainDao maindao;
 	
 //	엑셀 파일의 데이터를 List[row] = {'cell','값'} 의 형태로 반환
