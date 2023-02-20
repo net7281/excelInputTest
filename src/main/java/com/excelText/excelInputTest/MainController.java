@@ -37,20 +37,33 @@ public class MainController {
 	@Inject
 	MainService mainService;
 	
+	//업로드중인지 체크
+	boolean uploading = false;
+	
 	//첫페이지
 	@GetMapping(value="/")
 	public String home( HttpServletRequest request, ModelMap model) {
+		model.addAttribute("uploading", uploading);
 		return "index";
+	}
+	//이동
+	@GetMapping(value="/rehome")
+	public String rehome( String url) {
+//		model.addAttribute("uploading", uploading);
+		System.out.println();
+		return "redirect:/";
 	}
 	
 //	엑셀파일 업로드
 	@RequestMapping(value="/upload", method = RequestMethod.POST)
-	public Callable<String> upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, ModelMap model) {
+	public Callable<String> upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, HttpServletRequest request, ModelMap model) {
 		
 		System.out.println("시작");
+		uploading = true;
 		
 		//걸린시간시작
  		long beforeTime = System.currentTimeMillis();
+ 		
  		return()->{
 		MultipartFile excelFile = multiRequest.getFile("excelFile");
 //			파일이름 & 특수문자 치환
@@ -88,14 +101,17 @@ public class MainController {
 		System.out.println("시간차이(m) : "+secDiffTime);
 		
 		model.addAttribute("excelDate", excelData);
+		uploading=false;
 		return "result";};
 	}
 	
-	@RequestMapping(value="/result")
-	public String result() {
-		
-		
-		return "result";
+	
+	//비동기 테스트
+	@RequestMapping(value="/asyncTest1")
+	public String asyncTest1(ModelMap model) {
+		System.out.println(uploading);
+		model.addAttribute("uploading", uploading);
+		return "asyncTest1";
 	}
 	
 	@RequestMapping(value="/download")

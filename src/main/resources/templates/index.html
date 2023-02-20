@@ -17,16 +17,22 @@
 </head>
 <body>
     <div class="wrap">
+        
     	<p>엑셀 파일을 업로드 하시면, C:\upload 에 파일이 올라간 후, 데이터를 빼낸 뒤 삭제됩니다.</p>
     	<form action="/upload" method="post" enctype="multipart/form-data">
     	    <input type="file" name="excelFile">
-            <button type="submit">input</button>
+            <button id="submitBt" type="submit" th:if="${uploading==false}">input</button>
+            <button id="submitBt" type="submit" th:if="${!uploading==false}" disabled>input</button>
     	</form>
     	</br></br></br>
         <button type="button" onclick="location.href='/download?name=엑셀업로드테스트_양식.xlsx'">업로드양식 다운로드</button>
         <button type="button" onclick="location.href='/download?name=100test.xlsx'">100개 test 데이터 다운로드</button>
         <button type="button" onclick="location.href='/download?name=50000test.xlsx'">50000개 test 데이터 다운로드</button>
         <button type="button" onclick="location.href='/download?name=300000test.xlsx'">300000개 test 데이터 다운로드</button>
+        </br>
+        </br>
+        </br>
+        <a href="/asyncTest1">비동기 업로드 테스트</a>
     </div>
 </body>
 </html>

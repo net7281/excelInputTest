@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비동기테스트</title>
+    <style>
+        body{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h3>비동기 테스트를 위한 페이지 입니다.</h3>
+    <div th:if="${uploading == false}">
+        <img src="https://m.figurepresso.com/web/upload/NNEditor/20220217/mobile/351893ee57f95b74cf35f2571e44a535_1645072611.jpg" alt="molcar" width="300">
+        <p>업로드중이 아닙니다.</p>
+    </div>
+    <div th:if="${!uploading == false}">
+        <img src="https://mblogthumb-phinf.pstatic.net/MjAyMTAxMTZfMTkx/MDAxNjEwNzk3NzkwNTYz.nurwxHevGUruHX6xmjgZrP8Hua35clREWjIRobxq2owg.p4KE0ee1k-PhLUBfJjgBsmYVP0c8qjiJ4sNOE5O55j8g.JPEG.23eriksen/IMG%EF%BC%BF20210116%EF%BC%BF193038.jpg?type=w800" alt="molcar" width="500">
+        <p>파일 업로드중입니다 ...</p>
+    </div>
+    </br>
+    </br>
+    </br>
+    <a href="/">첫페이지로 돌아가기</a>
+</body>
+</html>
