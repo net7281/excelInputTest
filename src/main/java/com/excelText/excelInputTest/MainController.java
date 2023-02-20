@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -56,53 +58,57 @@ public class MainController {
 	
 //	엑셀파일 업로드
 	@RequestMapping(value="/upload", method = RequestMethod.POST)
-	public Callable<String> upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, HttpServletRequest request, ModelMap model) {
+	public String upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, HttpServletRequest request, ModelMap model) {
 		
+		ExecutorService executorService = Executors.newSingleThreadExecutor();
 		System.out.println("시작");
 		uploading = true;
 		
 		//걸린시간시작
  		long beforeTime = System.currentTimeMillis();
  		
- 		return()->{
-		MultipartFile excelFile = multiRequest.getFile("excelFile");
-//			파일이름 & 특수문자 치환
-		String fileName = excelFile.getOriginalFilename();
-		fileName = fileName.replaceAll("\n", "").replaceAll("\r", "").replaceAll("&", "");		
-//			폴더경로
-		File fileFolder = new File("C:\\upload\\");
-//			파일이 들어갈 전체경로
-		File fileDir = new File("C:\\upload\\"+fileName);
-		
-//		받아온 엑셀 데이터를 저장할 변수
-		List excelData = new ArrayList();
-		
-		if(excelFile != null || !excelFile.isEmpty()) {
-			try {
-	//			업로드한 엑셀파일을 서버에 저장 > 데이터 꺼내기 > 엑셀파일삭제	
-				
-	//			upload 폴더 없으면 생성
-				if(!fileFolder.exists()) {
-					fileFolder.mkdirs(); 
+ 		Callable<String> uploadfile = () -> {
+			MultipartFile excelFile = multiRequest.getFile("excelFile");
+	//			파일이름 & 특수문자 치환
+			String fileName = excelFile.getOriginalFilename();
+			fileName = fileName.replaceAll("\n", "").replaceAll("\r", "").replaceAll("&", "");		
+	//			폴더경로
+			File fileFolder = new File("C:\\upload\\");
+	//			파일이 들어갈 전체경로
+			File fileDir = new File("C:\\upload\\"+fileName);
+			
+	//		받아온 엑셀 데이터를 저장할 변수
+			List excelData = new ArrayList();
+			
+			if(excelFile != null || !excelFile.isEmpty()) {
+				try {
+		//			업로드한 엑셀파일을 서버에 저장 > 데이터 꺼내기 > 엑셀파일삭제	
+					
+		//			upload 폴더 없으면 생성
+					if(!fileFolder.exists()) {
+						fileFolder.mkdirs(); 
+					}
+					excelFile.transferTo(fileDir); //엑셀파일 생성
+					excelData = mainService.excelUpload(fileDir); 
+					fileDir.delete(); //엑셀 데이터 받아온 후 파일 삭제
+				} catch (Exception e) {
+		//			업로드 실패 시 파일 삭제
+					e.printStackTrace();
+					if(fileDir.exists()) {
+						fileDir.delete();
+					}	
 				}
-				excelFile.transferTo(fileDir); //엑셀파일 생성
-				excelData = mainService.excelUpload(fileDir); 
-				fileDir.delete(); //엑셀 데이터 받아온 후 파일 삭제
-			} catch (Exception e) {
-	//			업로드 실패 시 파일 삭제
-				e.printStackTrace();
-				if(fileDir.exists()) {
-					fileDir.delete();
-				}	
 			}
-		}
-		long afterTime = System.currentTimeMillis(); // 코드 실행 후에 시간 받아오기
-		long secDiffTime = (afterTime - beforeTime)/1000; //두 시간에 차 계산
-		System.out.println("시간차이(m) : "+secDiffTime);
-		
-		model.addAttribute("excelDate", excelData);
-		uploading=false;
-		return "result";};
+			long afterTime = System.currentTimeMillis(); // 코드 실행 후에 시간 받아오기
+			long secDiffTime = (afterTime - beforeTime)/1000; //두 시간에 차 계산
+			System.out.println("시간차이(m) : "+secDiffTime);
+			
+			model.addAttribute("excelDate", excelData);
+			uploading=false;
+			return "redirect:/";
+		};
+		executorService.submit(uploadfile);
+		return "redirect:/";
 	}
 	
 	
