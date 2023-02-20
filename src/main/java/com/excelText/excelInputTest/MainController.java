@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
@@ -44,11 +45,13 @@ public class MainController {
 	
 //	엑셀파일 업로드
 	@RequestMapping(value="/upload", method = RequestMethod.POST)
-	public String upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, ModelMap model) {
+	public Callable<String> upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, ModelMap model) {
+		
+		System.out.println("시작");
 		
 		//걸린시간시작
  		long beforeTime = System.currentTimeMillis();
-	
+ 		return()->{
 		MultipartFile excelFile = multiRequest.getFile("excelFile");
 //			파일이름 & 특수문자 치환
 		String fileName = excelFile.getOriginalFilename();
@@ -85,6 +88,13 @@ public class MainController {
 		System.out.println("시간차이(m) : "+secDiffTime);
 		
 		model.addAttribute("excelDate", excelData);
+		return "result";};
+	}
+	
+	@RequestMapping(value="/result")
+	public String result() {
+		
+		
 		return "result";
 	}
 	
