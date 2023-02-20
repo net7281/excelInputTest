@@ -18,28 +18,24 @@ public class MainService {
 	MainDao maindao;
 	
 //	엑셀 파일의 데이터를 List[row] = {'cell','값'} 의 형태로 반환
-	public int excelUpload(File destFile) throws Exception{
+	public List<UserVo> excelUpload(File destFile) throws Exception{
 		
 //		엑셀 옵션값을 ExcelReadOption 에 저장
 		ExcelReadOption excelReadOption = new ExcelReadOption();
         excelReadOption.setFilePath(destFile.getAbsolutePath()); //파일경로 추가
         excelReadOption.setOutputColumns("A", "B", "C", "D", "E"); //추출할 컬럼명 추가
-        excelReadOption.setStartRow(2); //시작행  1 부터 시작
+        excelReadOption.setStartRow(3); //시작행 (맨 첫줄 1)
 		
-//        List<Map<String, String>>excelContent  = ExcelRead.read(excelReadOption);
         List<UserVo>excelContent = ExcelRead.read(excelReadOption);
        
-        for(UserVo article: excelContent){
-//            for(String column : article.keySet()) {
-//            	System.out.print(column + " : " + article.get(column) +" / ");
-//            }
-	        	
-            System.out.println(article.toString());
-        }
+//        콘솔 출력 테스트
+//        for(UserVo article: excelContent){
+//            System.out.println(article.toString());
+//        }
         
         maindao.insertCode(excelContent);
         
-        return 1;
+        return excelContent;
 		
 	}
 	

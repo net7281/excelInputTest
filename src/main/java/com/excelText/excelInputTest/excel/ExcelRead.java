@@ -30,12 +30,10 @@ public class ExcelRead {
             String cellName = "";  // cell name
             int numOfCells = 0;    // cell number
             
-//          각 map을 저장하는 list
-//            List<Map<String, String>> result = new ArrayList<Map<String, String>>();
+//          각 userVo을 저장하는 list
             List<UserVo> result = new ArrayList<UserVo>();
             
-//          각 row값을 저장하는 map ("A","사과")  
-//            Map<String, String> map = null;
+//          각 row값을 저장하는 UserVo 
             UserVo vo = null;
             
 //          sheet의 갯수만큼 반복
@@ -49,14 +47,12 @@ public class ExcelRead {
                 
 //              엑셀 파일의 numOfRows가 1이 반환될 경우 예외처리
                 if(numOfRows <= 1) {
-//                    map = new HashMap<String, String>();
-//                    map.put("error", "유효행 없음");
-//                    result.add(map);
                 	System.out.println("유효행 없음");
                     return null;
                 }
                 
 //              row만큼 반복
+                rowFor:
                 for(int rowIndex = excelReadOption.getStartRow() - 1; rowIndex < numOfRows; rowIndex++) {
 /*						
  * 							row, cell 둘다 0부터 시작
@@ -73,14 +69,22 @@ public class ExcelRead {
 //                		Row의 안의 Cell의 개수
                 		numOfCells = row.getLastCellNum();
                 		
-//                		데이터를 담을 맵 객체 초기화
-//                		map = new HashMap<String, String>();
+//                		데이터를 담을 UserVo 객체 초기화
                 		vo = new UserVo();
                 		
 //                		cell의 수 만큼 반복
                 		for(int cellIndex = 0; cellIndex < numOfCells; cellIndex++) {
 //                			해당 cell을 가지고온다.
                 			cell = row.getCell(cellIndex);
+                			
+//                			현재 cell의 column명을 가지고온다
+                			cellName = ExcelCellRef.getName(cell, cellIndex);
+                			
+//                			추출 대상의 column인지 확인
+                			if( !excelReadOption.getOutputColumns().contains(cellName) ) {
+                                continue;
+                            }
+                			
                 			
 //                			cell의 서식 읽기
                 			if(cell == null) {
@@ -116,24 +120,18 @@ public class ExcelRead {
                             	}
                             }
                 			
-//                			현재 cell의 column명을 가지고온다
-                			cellName = ExcelCellRef.getName(cell, cellIndex);
-                			
-//                			추출 대상의 column인지 확인
-                			if( !excelReadOption.getOutputColumns().contains(cellName) ) {
-                                continue;
-                            }
-//                			map에 {"column=값"}으로 담는다
-//                			map.put(cellName, ExcelCellRef.getValue(cell, wb));
-                			
-//                			행별로 UserVo에 넣는다
-                			if(cellName.equals("A")) vo.setIn_num(Integer.parseInt(ExcelCellRef.getValue(cell, wb)));
-                			if(cellName.equals("B")) vo.setName(ExcelCellRef.getValue(cell, wb));
-                			if(cellName.equals("C")) vo.setRRN(ExcelCellRef.getValue(cell, wb));
-                			if(cellName.equals("D")) vo.setNumber(ExcelCellRef.getValue(cell, wb));
-                			if(cellName.equals("E")) vo.setAddress(ExcelCellRef.getValue(cell, wb));
+                			try {//오류 시 해당 row 건너뛴다
+//               	 			행별로 UserVo에 넣는다
+	                			if(cellName.equals("A")) vo.setIn_num(Integer.parseInt(ExcelCellRef.getValue(cell, wb)));
+	                			if(cellName.equals("B")) vo.setName(ExcelCellRef.getValue(cell, wb));
+	                			if(cellName.equals("C")) vo.setRRN(ExcelCellRef.getValue(cell, wb));
+	                			if(cellName.equals("D")) vo.setNumber(ExcelCellRef.getValue(cell, wb));
+	                			if(cellName.equals("E")) vo.setAddress(ExcelCellRef.getValue(cell, wb));
+							} catch (Exception e) {
+								continue rowFor;
+							}
+
                 		}
-//                		map.put("successMessage", "불러오기 성공");
                 		result.add(vo); // result리스트에 저장
                 	}else {
                 		//sheet.getRow(rowIndex).getCell(0) != null && row != null 이 아닐때

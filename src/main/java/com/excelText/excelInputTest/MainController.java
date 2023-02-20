@@ -70,10 +70,11 @@ public class MainController {
 					fileFolder.mkdirs(); 
 				}
 				excelFile.transferTo(fileDir); //엑셀파일 생성
-				mainService.excelUpload(fileDir); 
+				excelData = mainService.excelUpload(fileDir); 
 				fileDir.delete(); //엑셀 데이터 받아온 후 파일 삭제
 			} catch (Exception e) {
 	//			업로드 실패 시 파일 삭제
+				e.printStackTrace();
 				if(fileDir.exists()) {
 					fileDir.delete();
 				}	
