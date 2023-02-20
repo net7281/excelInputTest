@@ -5,6 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>excel_input_test</title>
+    <style>
+        input[type="file"]{
+            border: 1px solid #ccc;
+        }
+        button{
+            margin-right: 20px;
+            padding: 0 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="wrap">
@@ -13,7 +22,11 @@
     	    <input type="file" name="excelFile">
             <button type="submit">input</button>
     	</form>
-        
+    	</br></br></br>
+        <button type="button" onclick="location.href='/download?name=엑셀업로드테스트_양식.xlsx'">업로드양식 다운로드</button>
+        <button type="button" onclick="location.href='/download?name=100test.xlsx'">100개 test 데이터 다운로드</button>
+        <button type="button" onclick="location.href='/download?name=50000test.xlsx'">50000개 test 데이터 다운로드</button>
+        <button type="button" onclick="location.href='/download?name=300000test.xlsx'">300000개 test 데이터 다운로드</button>
     </div>
 </body>
 </html>
