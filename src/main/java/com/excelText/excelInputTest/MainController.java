@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.ResourceUtils;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -80,9 +82,6 @@ public class MainController {
  				);
 		return "redirect:/";
 	}
-	
-    @GetMapping(value = "/uploadState", produces = "text/event-stream")
-
 	
 	
 	//비동기 테스트

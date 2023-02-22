@@ -2,8 +2,8 @@ window.onload=function(){
 	
 	const eventSource = new EventSource(`/uploadState`);
 	
-	eventSource.onmessage = function (event) {
-    	alert("완료")
-	};
+	eventSource.onmessage = event => {
+        console.log(event.data)
+    }
 	
 }
