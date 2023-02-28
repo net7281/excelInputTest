@@ -2,6 +2,7 @@ package com.excelText.excelInputTest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -60,9 +62,11 @@ public class MainController {
 	}
 	
 //	엑셀파일 업로드
+	@ResponseBody
 	@RequestMapping(value="/upload", method = RequestMethod.POST)
-	public String upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, HttpServletRequest request, ModelMap model) {
+	public SseEmitter upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, HttpServletRequest request, ModelMap model) {
 		
+		SseEmitter emitter = new SseEmitter();
 		System.out.println("시작");
 		uploading = true;
 		
@@ -70,17 +74,30 @@ public class MainController {
  		long beforeTime = System.currentTimeMillis();
  		MultipartFile excelFile = multiRequest.getFile("excelFile");
  		
- 		final CompletableFuture<Boolean> excelDataFile = mainService.excelDataFile(excelFile) ;
  		
+ 		final CompletableFuture<Boolean> excelDataFile = mainService.excelDataFile(excelFile) ;
+ 		try {
+			emitter.send(SseEmitter.event().data("시작"));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
  		excelDataFile.thenAccept(
  				result -> {
-	 					long afterTime = System.currentTimeMillis(); // 코드 실행 후에 시간 받아오기
-						long secDiffTime = (afterTime - beforeTime)/1000; //두 시간에 차 계산
-						System.out.println("시간차이(m) : "+secDiffTime);
- 						uploading=false;
+	 					try {
+		 					long afterTime = System.currentTimeMillis(); // 코드 실행 후에 시간 받아오기
+							long secDiffTime = (afterTime - beforeTime)/1000; //두 시간에 차 계산
+							System.out.println("시간차이(m) : "+secDiffTime);
+	 						uploading=false;
+	 						
+							emitter.send(SseEmitter.event().data("되면좋겟어"));
+						} catch (IOException e) {
+							emitter.completeWithError(e);
+						}
+ 						emitter.complete();
  					}
  				);
-		return "redirect:/";
+ 		return emitter;
 	}
 	
 	
