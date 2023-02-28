@@ -51,6 +51,8 @@ public class MainController {
 	@GetMapping(value="/")
 	public String home( HttpServletRequest request, ModelMap model) {
 		model.addAttribute("uploading", uploading);
+		List<Map> map = mainService.excel_list();
+		System.out.println(map.toString());
 		return "index";
 	}
 	//이동

@@ -21,6 +21,8 @@ public class MainService {
 	
 	@Autowired
 	MainDao maindao;
+	@Autowired
+	ExcelDao excelDao;
 	
 //	엑셀 파일의 데이터를 List[row] = {'cell','값'} 의 형태로 반환
 	public List<UserVo> excelUpload(File destFile) throws Exception{
@@ -80,6 +82,10 @@ public class MainService {
 		return CompletableFuture.completedFuture(true);
 	}
 	
+	
+	public List<Map> excel_list(){
+		return excelDao.excel_list();
+	}
 	
 //	값 하나만
 //	public String excelDate(File destFile) throws Exception {
