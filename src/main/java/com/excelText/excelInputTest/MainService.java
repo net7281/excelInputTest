@@ -87,6 +87,14 @@ public class MainService {
 		return excelDao.excel_list();
 	}
 	
+	public List<Map> getColumName() {
+		return excelDao.getColumName();
+	}
+	
+	public List<Map> getDataforExcel(List<String> columNames){
+		return excelDao.getDataforExcel(columNames);
+	}
+	
 //	값 하나만
 //	public String excelDate(File destFile) throws Exception {
 //    	ExcelReadOption excelReadOption = new ExcelReadOption();

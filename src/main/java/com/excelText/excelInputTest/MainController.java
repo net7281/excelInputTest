@@ -21,6 +21,17 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -64,11 +75,9 @@ public class MainController {
 	}
 	
 //	엑셀파일 업로드
-	@ResponseBody
 	@RequestMapping(value="/upload", method = RequestMethod.POST)
-	public SseEmitter upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, HttpServletRequest request, ModelMap model) {
+	public String upload(RedirectAttributes redirectAttributes, MultipartHttpServletRequest multiRequest, HttpServletRequest request, ModelMap model) {
 		
-		SseEmitter emitter = new SseEmitter();
 		System.out.println("시작");
 		uploading = true;
 		
@@ -78,28 +87,15 @@ public class MainController {
  		
  		
  		final CompletableFuture<Boolean> excelDataFile = mainService.excelDataFile(excelFile) ;
- 		try {
-			emitter.send(SseEmitter.event().data("시작"));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
  		excelDataFile.thenAccept(
  				result -> {
-	 					try {
-		 					long afterTime = System.currentTimeMillis(); // 코드 실행 후에 시간 받아오기
-							long secDiffTime = (afterTime - beforeTime)/1000; //두 시간에 차 계산
-							System.out.println("시간차이(m) : "+secDiffTime);
-	 						uploading=false;
-	 						
-							emitter.send(SseEmitter.event().data("되면좋겟어"));
-						} catch (IOException e) {
-							emitter.completeWithError(e);
-						}
- 						emitter.complete();
+	 					long afterTime = System.currentTimeMillis(); // 코드 실행 후에 시간 받아오기
+						long secDiffTime = (afterTime - beforeTime)/1000; //두 시간에 차 계산
+						System.out.println("시간차이(m) : "+secDiffTime);
+ 						uploading=false;
  					}
  				);
- 		return emitter;
+ 		return "redirect:/";
 	}
 	
 	
@@ -140,4 +136,74 @@ public class MainController {
 		}
 		return null;
 	}
+	
+	@RequestMapping(value="/ExcelDownload")
+	public void ExcelDownload(HttpServletResponse response)throws Exception{
+		
+//		오늘날짜
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		SimpleDateFormat timesdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+		Calendar c1 = Calendar.getInstance();
+		String strToday = sdf.format(c1.getTime()) ;
+		String strTodayTime = timesdf.format(c1.getTime()) ;
+		
+		// 엑셀 파일명
+		String filename = strToday+"_excel.xlsx";
+		
+		Workbook workbook = new XSSFWorkbook();
+		
+//      엑셀스타일
+		CellStyle style = workbook.createCellStyle();
+		style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		Font Bold = workbook.createFont();
+		Bold.setBold(true);
+		style.setFont(Bold);
+		style.setAlignment(HorizontalAlignment.CENTER);
+		
+//		엑셀 생성 요소
+		Sheet sheet = workbook.createSheet(strToday+"excelData");
+		Row row;
+		Cell cell;
+		int rowNo = 0;
+		int count=1;
+		
+		// 헤더 정보 구성
+		List<Map> columnDate = mainService.getColumName();
+		//첫줄
+		row = sheet.createRow(rowNo++);
+		sheet.addMergedRegion(new CellRangeAddress(0,0,0,columnDate.size()-1));
+		cell = row.createCell(0);
+		cell.setCellValue("조회일 : "+strTodayTime);
+		cell.setCellStyle(style);
+		
+		//둘째줄
+		row = sheet.createRow(rowNo++);
+		for(int i = 0; i<columnDate.size() ;i++) {
+			cell = row.createCell(i);
+			cell.setCellValue((String)columnDate.get(i).get("column_name"));
+			cell.setCellStyle(style);
+		}
+		
+		List<String> column_place = new ArrayList<>();
+		char aString = 65;
+		for(int i=0; i<columnDate.size();i++) {
+			column_place.add(aString+"");
+			aString++;
+		}
+		System.out.println(column_place.toString());
+		
+		List<Map> a = mainService.getDataforExcel(column_place);
+		System.out.println(a.toString());
+		
+		
+		// 컨텐트 타입과 파일명 지정
+		response.setContentType("ms-vnd/excel");
+		response.setHeader("Content-Disposition", "attachment;filename="+filename);
+
+		// 엑셀 출력
+		workbook.write(response.getOutputStream());
+		workbook.close();
+	}
+	
 }
