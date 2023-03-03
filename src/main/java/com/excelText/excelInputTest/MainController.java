@@ -31,6 +31,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -62,16 +64,7 @@ public class MainController {
 	@GetMapping(value="/")
 	public String home( HttpServletRequest request, ModelMap model) {
 		model.addAttribute("uploading", uploading);
-		List<Map> map = mainService.excel_list();
-		System.out.println(map.toString());
 		return "index";
-	}
-	//이동
-	@GetMapping(value="/rehome")
-	public String rehome( String url) {
-//		model.addAttribute("uploading", uploading);
-		System.out.println();
-		return "redirect:/";
 	}
 	
 //	엑셀파일 업로드
@@ -137,9 +130,18 @@ public class MainController {
 		return null;
 	}
 	
+	@ResponseBody
+	@RequestMapping(value="/checkUpload")
+	public void checkUpload(HttpServletResponse response)throws Exception{
+		
+	}
+	
 	@RequestMapping(value="/ExcelDownload")
 	public void ExcelDownload(HttpServletResponse response)throws Exception{
 		
+		//걸린시간시작
+ 		long beforeTime = System.currentTimeMillis();
+ 		
 //		오늘날짜
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		SimpleDateFormat timesdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
@@ -150,7 +152,7 @@ public class MainController {
 		// 엑셀 파일명
 		String filename = strToday+"_excel.xlsx";
 		
-		Workbook workbook = new XSSFWorkbook();
+		SXSSFWorkbook workbook = new SXSSFWorkbook();
 		
 //      엑셀스타일
 		CellStyle style = workbook.createCellStyle();
@@ -185,6 +187,7 @@ public class MainController {
 			cell.setCellStyle(style);
 		}
 		
+		//행 ABC
 		List<String> column_place = new ArrayList<>();
 		char aString = 65;
 		for(int i=0; i<columnDate.size();i++) {
@@ -193,8 +196,29 @@ public class MainController {
 		}
 		System.out.println(column_place.toString());
 		
-		List<Map> a = mainService.getDataforExcel(column_place);
-		System.out.println(a.toString());
+		int rowCount = mainService.getRowCount();
+		
+		
+		System.out.println("i = " + Math.ceil(rowCount/10000));
+		
+		for(int i=0; i<= Math.ceil(rowCount/10000) ; i++) {
+			List<Map> dataList= mainService.getDataforExcel(column_place,i);
+			System.out.println("a = " + dataList.size() + "- i = "+i);
+			for(int a=0;a<dataList.size();a++) {
+				row = sheet.createRow(rowNo++);
+				for(int j=0; j<columnDate.size(); j++) {
+					cell = row.createCell(j);
+					String place = (String) columnDate.get(j).get("column_place");
+					cell.setCellValue(String.valueOf(dataList.get(a).get(place)));
+				}
+				// 주기적인 flush 진행
+                if (rowNo % 100 == 0) {
+                  ((SXSSFSheet) sheet).flushRows(100); 
+                }
+			}
+			
+		}
+		
 		
 		
 		// 컨텐트 타입과 파일명 지정
@@ -204,6 +228,11 @@ public class MainController {
 		// 엑셀 출력
 		workbook.write(response.getOutputStream());
 		workbook.close();
+		
+		long afterTime = System.currentTimeMillis(); // 코드 실행 후에 시간 받아오기
+		long secDiffTime = (afterTime - beforeTime)/1000; //두 시간에 차 계산
+		System.out.println("시간차이(m) : "+secDiffTime);
+		
 	}
 	
 }

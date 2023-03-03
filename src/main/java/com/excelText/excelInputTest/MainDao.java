@@ -39,7 +39,7 @@ public class MainDao {
 	    
 	try {    
 	 
-	    String sql = "insert into testtable(in_num, name, RRN, number, address) values (?,?,?,?,?)" ;
+	    String sql = "insert into testtable(A, B, C, D, E) values (?,?,?,?,?)" ;
 	    con = getConnection();
 	    pstmt = con.prepareStatement(sql);
 	    

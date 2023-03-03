@@ -93,8 +93,13 @@ public class MainService {
 		return excelDao.getColumName();
 	}
 	
-	public List<Map> getDataforExcel(List<String> columNames){
-		return excelDao.getDataforExcel(columNames);
+	public List<Map> getDataforExcel(List<String> columNames, int limit){
+		int start = 10000*limit;
+		return excelDao.getDataforExcel(columNames,start);
+	}
+	
+	public int getRowCount() {
+		return excelDao.getRowCount();
 	}
 	
 //	값 하나만
