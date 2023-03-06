@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -34,6 +35,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -48,6 +50,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.excelText.excelInputTest.excel.ExcelUploadStatus;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -56,9 +60,12 @@ public class MainController {
 	
 	@Inject
 	MainService mainService;
+	@Autowired
+	ExcelUploadStatus excelUploadStatus;
 	
 	//업로드중인지 체크
-	boolean uploading = false;
+	boolean uploading = false; //업로드 중인지
+ 	public int percent = 0; //진행정도
 	
 	//첫페이지
 	@GetMapping(value="/")
@@ -73,6 +80,7 @@ public class MainController {
 		
 		System.out.println("시작");
 		uploading = true;
+		percent =1;
 		
 		//걸린시간시작
  		long beforeTime = System.currentTimeMillis();
@@ -100,6 +108,7 @@ public class MainController {
 		return "asyncTest1";
 	}
 	
+//	테스트 파일 다운로드
 	@RequestMapping(value="/download")
 	public String download(@RequestParam("name") String name, HttpServletResponse response) throws Exception {
 		String fileName = new String();
@@ -132,10 +141,14 @@ public class MainController {
 	
 	@ResponseBody
 	@RequestMapping(value="/checkUpload")
-	public void checkUpload(HttpServletResponse response)throws Exception{
-		
+	public Map checkUpload(HttpServletResponse response)throws Exception{
+		Map res = new HashMap<>();
+		res.put("percent", excelUploadStatus.getPercent());
+		res.put("uploading", uploading);
+		return res;
 	}
 	
+//	엑셀 다운로드
 	@RequestMapping(value="/ExcelDownload")
 	public void ExcelDownload(HttpServletResponse response)throws Exception{
 		
@@ -198,9 +211,9 @@ public class MainController {
 		
 		int rowCount = mainService.getRowCount();
 		
-		
 		System.out.println("i = " + Math.ceil(rowCount/10000));
 		
+//		DB데이터 불러오기
 		for(int i=0; i<= Math.ceil(rowCount/10000) ; i++) {
 			List<Map> dataList= mainService.getDataforExcel(column_place,i);
 			System.out.println("a = " + dataList.size() + "- i = "+i);
@@ -216,10 +229,7 @@ public class MainController {
                   ((SXSSFSheet) sheet).flushRows(100); 
                 }
 			}
-			
 		}
-		
-		
 		
 		// 컨텐트 타입과 파일명 지정
 		response.setContentType("ms-vnd/excel");
@@ -232,7 +242,6 @@ public class MainController {
 		long afterTime = System.currentTimeMillis(); // 코드 실행 후에 시간 받아오기
 		long secDiffTime = (afterTime - beforeTime)/1000; //두 시간에 차 계산
 		System.out.println("시간차이(m) : "+secDiffTime);
-		
 	}
 	
 }
